@@ -269,6 +269,17 @@ fn miden_build(args: impl IntoIterator<Item = String>) -> anyhow::Result<std::pr
                 cmd
             }
             None => {
+                // `midenup init` puts `miden` on PATH but does not export
+                // MIDENUP_HOME, so a fresh terminal lands here by default. If
+                // `cargo-miden` isn't installed separately, the build below
+                // fails with cargo's own "no such command: `miden`" error,
+                // which says nothing about the cause, so name it up front.
+                eprintln!(
+                    "warning: MIDENUP_HOME and CARGO_MIDEN are both unset; falling back to \
+                     `cargo miden`, which requires cargo-miden to already be on PATH. If the \
+                     build fails with \"no such command: `miden`\", export MIDENUP_HOME (see \
+                     `midenup show home`) or set CARGO_MIDEN to your cargo-miden binary path."
+                );
                 let mut cmd = std::process::Command::new("cargo");
                 cmd.arg("miden");
                 cmd
